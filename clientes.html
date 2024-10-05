@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #000;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 1000px;
+            height: 95%;
+            overflow-y: auto;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .row div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .row div:last-child {
+            margin-right: 0; /* Sin margen derecho para el último div */
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #000;
+        }
+        input {
+            padding: 8px; /* Reducir el padding */
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            color: #333;
+            width: calc(100% - 10px); /* Hacer las casillas un poco más pequeñas */
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #0056b3;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .add-btn { background-color: #28a745; color: white; }
+        .add-btn:hover { background-color: #218838; }
+        .save-btn { background-color: #007bff; color: white; }
+        .save-btn:hover { background-color: #0056b3; }
+        .menu-btn { background-color: #ffc107; color: white; }
+        .menu-btn:hover { background-color: #e0a800; }
+        .search-container {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        .search-input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #007bff;
+            background-color: #f8f9fa;
+            color: #333;
+            width: 80%;
+            margin-right: 10px;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus {
+            border-color: #0056b3;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f1f1;
+            color: #000;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+        .edit-btn { background-color: #007bff; }
+        .edit-btn:hover { background-color: #0056b3; }
+        .delete-btn { background-color: #dc3545; }
+        .delete-btn:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gestión de Clientes</h1>
+
+        <div class="form-section">
+            <form id="clienteForm" onsubmit="return agregarCliente()">
+                <div class="row">
+                    <div>
+                        <label for="nombre">Nombre del Cliente:</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div>
+                        <label for="correo">Correo Electrónico:</label>
+                        <input type="email" id="correo" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        <label for="producto">Producto Comprado:</label>
+                        <input type="text" id="producto" required>
+                    </div>
+                    <div>
+                        <label for="puntos">Puntos Acumulados:</label>
+                        <input type="number" id="puntos" required>
+                    </div>
+                    <div>
+                        <label for="precio">Precio del Producto:</label>
+                        <input type="number" id="precio" step="0.01" required>
+                    </div>
+                </div>
+            </form>
+
+            <div class="button-container">
+                <button class="add-btn" onclick="agregarCliente()">Agregar Cliente</button>
+                <button class="save-btn" onclick="guardarClientes()">Guardar Clientes</button>
+                <button class="menu-btn" onclick="volverAlMenu()">Regresar al Menú</button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="buscar" placeholder="Buscar cliente por nombre o correo" class="search-input" onkeyup="filtrarClientes()">
+        </div>
+
+        <div class="table-container">
+            <table id="clientesTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Producto</th>
+                        <th>Puntos</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos se agregarán aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let editando = null;
+        let clientes = [];
+
+        window.onload = function() {
+            const clientesGuardados = localStorage.getItem('clientes');
+            if (clientesGuardados) {
+                clientes = JSON.parse(clientesGuardados);
+                renderClientes();
+            }
+        };
+
+        const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
+
+        // Función para agregar o editar cliente
+        function agregarCliente() {
+            const nombre = document.getElementById('nombre').value;
+            const correo = document.getElementById('correo').value;
+            const producto = document.getElementById('producto').value;
+            const puntos = document.getElementById('puntos').value;
+            const precio = document.getElementById('precio').value;
+
+            if (editando !== null) {
+                clientes[editando] = { nombre, correo, producto, puntos, precio };
+                editando = null;
+            } else {
+                clientes.push({ nombre, correo, producto, puntos, precio });
+            }
+
+            renderClientes();
+            document.getElementById('clienteForm').reset();
+            return false; // Evitar el envío del formulario
+        }
+
+        // Función para mostrar clientes en la tabla
+        function renderClientes() {
+            clientesTable.innerHTML = '';
+
+            clientes.forEach((cliente, index) => {
+                const nuevaFila = clientesTable.insertRow();
+
+                nuevaFila.insertCell(0).textContent = cliente.nombre || "No especificado";
+                nuevaFila.insertCell(1).textContent = cliente.correo || "No especificado";
+                nuevaFila.insertCell(2).textContent = cliente.producto || "No especificado";
+                nuevaFila.insertCell(3).textContent = cliente.puntos || "0";
+                nuevaFila.insertCell(4).textContent = cliente.precio || "0";
+
+                const accionesCelda = nuevaFila.insertCell(5);
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Editar';
+                editButton.className = 'edit-btn';
+                editButton.onclick = () => editarCliente(index);
+                accionesCelda.appendChild(editButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.className = 'delete-btn';
+                deleteButton.onclick = () => eliminarCliente(index);
+                accionesCelda.appendChild(deleteButton);
+            });
+
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+        }
+
+        // Función para editar cliente
+        function editarCliente(index) {
+            editando = index;
+            const cliente = clientes[index];
+            document.getElementById('nombre').value = cliente.nombre;
+            document.getElementById('correo').value = cliente.correo;
+            document.getElementById('producto').value = cliente.producto;
+            document.getElementById('puntos').value = cliente.puntos;
+            document.getElementById('precio').value = cliente.precio;
+        }
+
+        // Función para eliminar cliente
+        function eliminarCliente(index) {
+            clientes.splice(index, 1);
+            renderClientes();
+        }
+
+        // Función para guardar clientes en localStorage
+        function guardarClientes() {
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+            alert('Clientes guardados exitosamente.');
+        }
+
+        // Función para buscar clientes
+        function filtrarClientes() {
+            const query = document.getElementById('buscar').value.toLowerCase();
+            const filas = clientesTable.getElementsByTagName('tr');
+
+            for (let i = 0; i < filas.length; i++) {
+                const nombre = filas[i].cells[0].textContent.toLowerCase();
+                const correo = filas[i].cells[1].textContent.toLowerCase();
+                if (nombre.includes(query) || correo.includes(query)) {
+                    filas[i].style.display = '';
+                } else {
+                    filas[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Función para regresar al menú
+        function volverAlMenu() {
+            window.location.href = 'menu.html'; // Cambia esto a la URL de tu menú
+        }
+    </script>
+</body>
+</html>

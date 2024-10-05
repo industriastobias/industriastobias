@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compra</title>
+    <style>
+        /* Estilo original */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            overflow-y: scroll;
+        }
+        .header, .back-text {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .header {
+            background-color: #fff;
+            color: #333;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #ddd;
+        }
+        .back-text {
+            color: #007BFF;
+            font-size: 14px;
+            text-decoration: none;
+            left: 10px;
+            top: 10px;
+            transform: translateY(0);
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            margin-top: 60px;
+            padding: 20px;
+            gap: 20px;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        .form-container, .inventory-table {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1;
+        }
+        .form-container {
+            max-width: 400px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .inventory-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .inventory-table th, .inventory-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .inventory-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .inventory-table td {
+            font-size: 14px;
+        }
+        .inventory-table td button {
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        .inventory-table td button.edit {
+            background-color: #ffa500;
+        }
+        .inventory-table td button.edit:hover {
+            background-color: #e68900;
+        }
+        .inventory-table td button:hover {
+            background-color: #c62828;
+        }
+        .total-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            text-align: center;
+        }
+        .total-container h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .total-container p {
+            font-size: 20px;
+            margin: 10px 0 0;
+            color: #4CAF50;
+        }
+        .export-buttons {
+            margin-bottom: 15px;
+        }
+        .export-buttons button {
+            margin-right: 10px;
+            padding: 8px 15px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .export-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .export-buttons input[type="file"] {
+            display: none;
+        }
+        .other-category {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.17.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="header" id="header">
+    Gestión de Compras
+</div>
+
+<a href="menu.html" class="back-text" id="backText">Regresar al Menú</a>
+
+<div class="container">
+    <div class="form-container">
+        <form id="purchaseForm">
+            <div class="form-group">
+                <label for="name">Nombre del Producto:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="code">Código:</label>
+                <input type="text" id="code" name="code" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Precio:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Descripción:</label>
+                <textarea id="description" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="category">Categoría:</label>
+                <select id="category" name="category" onchange="toggleOtherCategory()">
+                    <option value="Cadenas">Cadenas</option>
+                    <option value="Pulseras">Pulseras</option>
+                    <option value="Aritos">Aritos</option>
+                    <option value="Carteras">Carteras</option>
+                    <option value="Otra">Otra</option>
+                </select>
+            </div>
+            <div class="form-group other-category" id="otherCategoryContainer">
+                <label for="otherCategory">Especificar Otra Categoría:</label>
+                <input type="text" id="otherCategory" name="otherCategory" disabled>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Cantidad en Stock:</label>
+                <input type="number" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="purchaseDate">Fecha de Compra:</label>
+                <input type="date" id="purchaseDate" name="purchaseDate" required>
+            </div>
+            <div class="form-group">
+                <label for="addedBy">Agregado Por:</label>
+                <input type="text" id="addedBy" name="addedBy" required>
+            </div>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+
+    <div class="inventory-table">
+        <div class="export-buttons">
+            <button onclick="exportToExcel()">Exportar a Excel</button>
+            <button onclick="document.getElementById('importFile').click()">Importar Excel</button>
+            <input type="file" id="importFile" accept=".xlsx" onchange="importFromExcel(event)">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Código</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Cantidad en Stock</th>
+                    <th>Fecha de Compra</th>
+                    <th>Agregado Por</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryList">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="total-container">
+    <h2>Total en Dólares Americanos:</h2>
+    <p id="totalAmount">$0.00</p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('purchaseForm');
+        const inventoryList = document.getElementById('inventoryList');
+        const totalAmount = document.getElementById('totalAmount');
+
+        function loadInventory() {
+            const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+            inventoryList.innerHTML = inventory.map((item, index) => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.code}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>${item.description}</td>
+                    <td>${item.category}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.purchaseDate}</td>
+                    <td>${item.addedBy}</td>
+                    <td>
+                        <button onclick="editItem(${index})" class="edit">Editar</button>
+                        <button onclick="deleteItem(${index})">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+            updateTotal(inventory);
+        }
+
+        function updateTotal(inventory) {
+            const total = inventory.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalAmount.textContent = `$${total.toFixed(2)}`;
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const newItem = Object.fromEntries(formData.entries());
+            newItem.price = parseFloat(newItem.price);
+            newItem.quantity = parseInt(newItem.quantity);
+            newItem.purchaseDate = form.purchaseDate.value;
+            newItem.addedBy = form.addedBy.value;
+
+            const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+            inventory.push(newItem);
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            form.reset();
+            loadInventory();
+        });
+
+        loadInventory();
+    });
+
+    function toggleOtherCategory() {
+        const categorySelect = document.getElementById('category');
+        const otherCategoryContainer = document.getElementById('otherCategoryContainer');
+        const otherCategoryInput = document.getElementById('otherCategory');
+
+        if (categorySelect.value === 'Otra') {
+            otherCategoryContainer.style.display = 'block';
+            otherCategoryInput.disabled = false;
+        } else {
+            otherCategoryContainer.style.display = 'none';
+            otherCategoryInput.disabled = true;
+            otherCategoryInput.value = '';
+        }
+    }
+
+    function editItem(index) {
+        const inventory = JSON.parse(localStorage.getItem('inventory'));
+        const item = inventory[index];
+
+        document.getElementById('name').value = item.name;
+        document.getElementById('code').value = item.code;
+        document.getElementById('price').value = item.price;
+        document.getElementById('description').value = item.description;
+        document.getElementById('category').value = item.category;
+        document.getElementById('quantity').value = item.quantity;
+        document.getElementById('purchaseDate').value = item.purchaseDate;
+        document.getElementById('addedBy').value = item.addedBy;
+
+        deleteItem(index); // Remove the item after editing
+    }
+
+    function deleteItem(index) {
+        const inventory = JSON.parse(localStorage.getItem('inventory'));
+        inventory.splice(index, 1);
+        localStorage.setItem('inventory', JSON.stringify(inventory));
+        loadInventory();
+    }
+
+    function exportToExcel() {
+        const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+        const worksheet = XLSX.utils.json_to_sheet(inventory);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario');
+        XLSX.writeFile(workbook, 'inventario.xlsx');
+    }
+
+    function importFromExcel(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(worksheet);
+            const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+            const newInventory = [...inventory, ...json];
+            localStorage.setItem('inventory', JSON.stringify(newInventory));
+            loadInventory();
+        };
+        reader.readAsArrayBuffer(file);
+    }
+</script>
+
+</body>
+</html>

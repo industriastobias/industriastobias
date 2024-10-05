@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .total-container {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .total-container p {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .delete-button:hover {
+            background-color: #e53935;
+        }
+        .export-buttons {
+            margin-bottom: 15px;
+        }
+        .export-buttons button {
+            margin-right: 10px;
+            padding: 8px 15px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .export-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .export-buttons input[type="file"] {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.17.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Ventas Realizadas</h1>
+
+        <div class="export-buttons">
+            <button onclick="exportToExcel()">Exportar a Excel</button>
+            <button onclick="document.getElementById('importFile').click()">Importar Excel</button>
+            <input type="file" id="importFile" accept=".xlsx" onchange="importFromExcel(event)">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Código</th>
+                    <th>Precio (USD)</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Cantidad en Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="sales-list">
+                <!-- Los productos vendidos aparecerán aquí -->
+            </tbody>
+        </table>
+
+        <div class="total-container">
+            <p><span id="total-amount">$0.00</span> USD</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
+            let salesList = document.getElementById('sales-list');
+            let totalAmount = 0;
+
+            if (soldItems.length === 0) {
+                salesList.innerHTML = '<tr><td colspan="7">No hay productos vendidos.</td></tr>';
+            } else {
+                soldItems.forEach((item, index) => {
+                    let row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td>${item.price}</td>
+                        <td>${item.description}</td>
+                        <td>${item.category}</td>
+                        <td>${item.quantity}</td>
+                        <td><button class="delete-button" onclick="removeSoldItem(${index})">Eliminar</button></td>
+                    `;
+                    salesList.appendChild(row);
+                    totalAmount += parseFloat(item.price);
+                });
+            }
+
+            document.getElementById('total-amount').innerText = `$${totalAmount.toFixed(2)}`;
+        });
+
+        window.removeSoldItem = function(index) {
+            let soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
+            soldItems.splice(index, 1);
+            localStorage.setItem('soldItems', JSON.stringify(soldItems));
+            location.reload(); // Recargar la página para actualizar la lista
+        };
+
+        function exportToExcel() {
+            const soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
+            const ws = XLSX.utils.json_to_sheet(soldItems);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
+            XLSX.writeFile(wb, 'ventas.xlsx');
+        }
+
+        function importFromExcel(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                let soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
+
+                jsonData.forEach(item => {
+                    soldItems.push(item);
+                });
+
+                localStorage.setItem('soldItems', JSON.stringify(soldItems));
+                location.reload(); // Recargar la página para mostrar las ventas actualizadas
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>

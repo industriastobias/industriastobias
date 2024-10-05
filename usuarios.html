@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios</title>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2em auto;
+            padding: 2em;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #4a6a41;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+        th, td {
+            padding: 0.8em;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4a6a41;
+            color: white;
+        }
+        button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #c9302c;
+        }
+        .success {
+            color: green;
+            margin-top: 1em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Lista de Usuarios</h2>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>ID de Usuario</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los usuarios se llenarán aquí -->
+        </tbody>
+    </table>
+    <div class="success" id="successMessage" style="display:none;">Usuario eliminado con éxito.</div>
+</div>
+
+<script>
+    // Simulando usuarios guardados
+    const users = [
+        { id: '2005', role: 'admin' },
+        { id: '1001', role: 'viewer' }
+    ];
+
+    function renderUsers() {
+        const userTableBody = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+        userTableBody.innerHTML = ''; // Limpiar la tabla antes de renderizar
+
+        users.forEach((user, index) => {
+            const row = userTableBody.insertRow();
+            row.insertCell(0).innerText = user.id;
+            row.insertCell(1).innerText = user.role;
+            const deleteCell = row.insertCell(2);
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Eliminar';
+            deleteButton.onclick = () => deleteUser(index);
+            deleteCell.appendChild(deleteButton);
+        });
+    }
+
+    function deleteUser(index) {
+        users.splice(index, 1); // Eliminar el usuario del array
+        renderUsers(); // Volver a renderizar la lista de usuarios
+        document.getElementById('successMessage').style.display = 'block'; // Mostrar mensaje de éxito
+    }
+
+    renderUsers(); // Inicializar la tabla de usuarios
+</script>
+
+</body>
+</html>
