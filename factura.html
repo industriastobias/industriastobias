@@ -3,62 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Factura</title>
+    <title>Factura - TOBIAS JEWELRY</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f0f0f0;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            padding: 20px;
         }
         .container {
-            text-align: center;
-            background-color: #fff;
+            max-width: 800px;
+            background: #fff;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 30px; /* Aumenta el padding para un contenedor más grande */
-            max-width: 800px; /* Aumenta el ancho máximo del contenedor */
-            width: 100%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
         }
         h1 {
-            margin-bottom: 20px;
-            font-size: 28px; /* Aumenta el tamaño del texto del título */
-            color: #333;
+            color: black;
+            margin: 0;
         }
-        p {
-            margin-bottom: 20px;
-            font-size: 18px; /* Aumenta el tamaño del texto del párrafo */
-            color: #666;
+        .form-group {
+            margin-bottom: 15px;
         }
-        button {
-            background-color: #4CAF50;
-            color: #fff;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
             border: none;
-            padding: 15px 30px; /* Aumenta el padding del botón */
             border-radius: 4px;
             cursor: pointer;
-            font-size: 18px; /* Aumenta el tamaño del texto del botón */
-            transition: background-color 0.3s;
-            text-decoration: none;
+            transition: background 0.3s;
         }
-        button:hover {
-            background-color: #45a049;
+        .btn:hover {
+            background-color: darkgray;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Generador de Factura</h1>
-    <p>Utiliza la herramienta de Shopify para generar tus facturas de manera fácil y rápida.</p>
-    <a href="https://www.shopify.com/es/herramientas/generador-factura#ToolContent" target="_blank">
-        <button>Generar Factura</button>
-    </a>
+    <header>
+        <h1>TOBIAS JEWELRY</h1>
+        <p>A Family Company</p>
+    </header>
+
+    <form id="invoiceForm">
+        <div class="form-group">
+            <label for="invoiceNumber">Número de Factura:</label>
+            <input type="text" id="invoiceNumber" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="date">Fecha:</label>
+            <input type="date" id="date" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="customerName">Nombre del Cliente:</label>
+            <input type="text" id="customerName" required>
+        </div>
+
+        <div class="form-group">
+            <label for="customerEmail">Correo Electrónico:</label>
+            <input type="text" id="customerEmailLocal" placeholder="usuario" required>
+            <select id="emailDomain" onchange="updateEmail()">
+                <option value="@gmail.com">@gmail.com</option>
+                <option value="@hotmail.com">@hotmail.com</option>
+                <option value="@yahoo.com">@yahoo.com</option>
+                <option value="@outlook.com">@outlook.com</option>
+                <option value="otros">Otros</option>
+            </select>
+            <input type="text" id="otherDomain" placeholder="Especifica dominio" style="display:none;" oninput="updateEmail()">
+        </div>
+
+        <div class="form-group">
+            <label for="customerAddress">Dirección del Cliente:</label>
+            <input type="text" id="customerAddress" required>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceItems">
+                <tr>
+                    <td><input type="text" placeholder="Descripción" required></td>
+                    <td><input type="number" placeholder="Cantidad" required oninput="calculateTotal()"></td>
+                    <td><input type="number" placeholder="Precio Unitario" required oninput="calculateTotal()"></td>
+                    <td><input type="number" placeholder="Total" disabled></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button type="button" id="addRow" class="btn">Agregar Fila</button>
+
+        <div class="form-group">
+            <label for="tax">Impuestos (%):</label>
+            <input type="number" id="tax" value="0" oninput="calculateTotal()">
+        </div>
+
+        <div class="form-group">
+            <label for="totalAmount">Monto Total:</label>
+            <input type="number" id="totalAmount" readonly>
+        </div>
+
+        <button type="button" class="btn" onclick="savePDF()">Guardar como PDF</button>
+    </form>
+
+    <footer>
+        <p>Gracias por su compra.</p>
+        <p>Síguenos en Instagram: @tobiasjewelry</p>
+    </footer>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    document.getElementById('addRow').addEventListener('click', function () {
+        const table = document.getElementById('invoiceItems');
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td><input type="text" placeholder="Descripción" required></td>
+            <td><input type="number" placeholder="Cantidad" required oninput="calculateTotal()"></td>
+            <td><input type="number" placeholder="Precio Unitario" required oninput="calculateTotal()"></td>
+            <td><input type="number" placeholder="Total" disabled></td>
+        `;
+    });
+
+    document.getElementById('emailDomain').addEventListener('change', function () {
+        const otherDomainInput = document.getElementById('otherDomain');
+        if (this.value === 'otros') {
+            otherDomainInput.style.display = 'block';
+            otherDomainInput.value = '';
+            document.getElementById('customerEmail').value = ''; // Clear email field
+        } else {
+            otherDomainInput.style.display = 'none';
+            otherDomainInput.value = ''; // Clear input
+            updateEmail(); // Update email with selected domain
+        }
+    });
+
+    function updateEmail() {
+        const localPart = document.getElementById('customerEmailLocal').value;
+        const domainPart = document.getElementById('emailDomain').value === 'otros' ? document.getElementById('otherDomain').value : document.getElementById('emailDomain').value;
+        document.getElementById('customerEmail').value = localPart + domainPart;
+    }
+
+    function calculateTotal() {
+        const rows = document.querySelectorAll('#invoiceItems tr');
+        let total = 0;
+
+        rows.forEach(row => {
+            const quantity = parseFloat(row.cells[1].querySelector('input').value) || 0;
+            const unitPrice = parseFloat(row.cells[2].querySelector('input').value) || 0;
+            const rowTotal = quantity * unitPrice;
+            row.cells[3].querySelector('input').value = rowTotal.toFixed(2);
+            total += rowTotal;
+        });
+
+        const taxRate = parseFloat(document.getElementById('tax').value) || 0;
+        const taxAmount = (total * taxRate) / 100;
+        total += taxAmount;
+
+        document.getElementById('totalAmount').value = total.toFixed(2);
+    }
+
+    async function savePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Título de la factura
+        doc.setFontSize(18);
+        doc.text('TOBIAS JEWELRY', 105, 20, { align: 'center' });
+        doc.setFontSize(12);
+        doc.text('A Family Company', 105, 30, { align: 'center' });
+
+        // Información de la factura
+        doc.setFontSize(12);
+        doc.text(`Factura N°: ${document.getElementById('invoiceNumber').value}`, 10, 40);
+        doc.text(`Fecha: ${document.getElementById('date').value}`, 10, 50);
+        doc.text(`Cliente: ${document.getElementById('customerName').value}`, 10, 60);
+        const email = document.getElementById('customerEmailLocal').value + (document.getElementById('emailDomain').value === 'otros' ? document.getElementById('otherDomain').value : document.getElementById('emailDomain').value);
+        doc.text(`Correo: ${email}`, 10, 70);
+        doc.text(`Dirección: ${document.getElementById('customerAddress').value}`, 10, 80);
+        doc.line(10, 85, 200, 85); // Línea horizontal
+
+        // Encabezado de la tabla
+        const startY = 90;
+        doc.text('Descripción', 10, startY);
+        doc.text('Cantidad', 80, startY);
+        doc.text('Precio Unitario', 130, startY);
+        doc.text('Total', 180, startY);
+        doc.line(10, startY + 2, 200, startY + 2); // Línea horizontal
+
+        const rows = document.querySelectorAll('#invoiceItems tr');
+        let currentY = startY + 10;
+
+        rows.forEach(row => {
+            doc.text(row.cells[0].querySelector('input').value, 10, currentY);
+            doc.text(row.cells[1].querySelector('input').value, 80, currentY);
+            doc.text(row.cells[2].querySelector('input').value, 130, currentY);
+            doc.text(row.cells[3].querySelector('input').value, 180, currentY);
+            currentY += 10;
+            doc.line(10, currentY - 2, 200, currentY - 2); // Línea horizontal entre filas
+        });
+
+        currentY += 10; // Espacio antes del total
+        doc.text(`Total: $${document.getElementById('totalAmount').value}`, 10, currentY);
+
+        currentY += 10; // Espacio antes del mensaje de agradecimiento
+        doc.text('Gracias por su compra.', 10, currentY);
+        currentY += 10; // Espacio antes del Instagram
+        doc.text('Síguenos en Instagram: @tobiasjewelry', 10, currentY);
+
+        doc.save('factura.pdf');
+    }
+</script>
 
 </body>
 </html>
