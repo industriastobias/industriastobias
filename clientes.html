@@ -17,7 +17,6 @@
             justify-content: center;
             height: 100vh;
             width: 100vw;
-            overflow: hidden;
         }
         h1 {
             font-size: 2.5rem;
@@ -49,7 +48,7 @@
             margin-right: 10px;
         }
         .row div:last-child {
-            margin-right: 0; /* Sin margen derecho para el último div */
+            margin-right: 0;
         }
         label {
             display: block;
@@ -58,12 +57,12 @@
             color: #000;
         }
         input {
-            padding: 8px; /* Reducir el padding */
+            padding: 8px;
             border: 1px solid #007bff;
             border-radius: 8px;
             background-color: #f8f9fa;
             color: #333;
-            width: calc(100% - 10px); /* Hacer las casillas un poco más pequeñas */
+            width: calc(100% - 10px);
             transition: border-color 0.3s;
         }
         input:focus {
@@ -216,17 +215,14 @@
         let editando = null;
         let clientes = [];
 
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', () => {
             const clientesGuardados = localStorage.getItem('clientes');
             if (clientesGuardados) {
                 clientes = JSON.parse(clientesGuardados);
                 renderClientes();
             }
-        };
+        });
 
-        const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
-
-        // Función para agregar o editar cliente
         function agregarCliente() {
             const nombre = document.getElementById('nombre').value;
             const correo = document.getElementById('correo').value;
@@ -243,11 +239,11 @@
 
             renderClientes();
             document.getElementById('clienteForm').reset();
-            return false; // Evitar el envío del formulario
+            return false;
         }
 
-        // Función para mostrar clientes en la tabla
         function renderClientes() {
+            const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
             clientesTable.innerHTML = '';
 
             clientes.forEach((cliente, index) => {
@@ -276,49 +272,51 @@
             localStorage.setItem('clientes', JSON.stringify(clientes));
         }
 
-        // Función para editar cliente
         function editarCliente(index) {
-            editando = index;
             const cliente = clientes[index];
             document.getElementById('nombre').value = cliente.nombre;
             document.getElementById('correo').value = cliente.correo;
             document.getElementById('producto').value = cliente.producto;
             document.getElementById('puntos').value = cliente.puntos;
             document.getElementById('precio').value = cliente.precio;
+            editando = index;
         }
 
-        // Función para eliminar cliente
         function eliminarCliente(index) {
-            clientes.splice(index, 1);
-            renderClientes();
+            if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+                clientes.splice(index, 1);
+                renderClientes();
+            }
         }
 
-        // Función para guardar clientes en localStorage
-        function guardarClientes() {
-            localStorage.setItem('clientes', JSON.stringify(clientes));
-            alert('Clientes guardados exitosamente.');
-        }
-
-        // Función para buscar clientes
         function filtrarClientes() {
-            const query = document.getElementById('buscar').value.toLowerCase();
-            const filas = clientesTable.getElementsByTagName('tr');
-
-            for (let i = 0; i < filas.length; i++) {
-                const nombre = filas[i].cells[0].textContent.toLowerCase();
-                const correo = filas[i].cells[1].textContent.toLowerCase();
-                if (nombre.includes(query) || correo.includes(query)) {
-                    filas[i].style.display = '';
+            const searchTerm = document.getElementById('buscar').value.toLowerCase();
+            const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
+            const rows = clientesTable.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const nombre = cells[0].textContent.toLowerCase();
+                const correo = cells[1].textContent.toLowerCase();
+                const producto = cells[2].textContent.toLowerCase();
+                
+                if (nombre.includes(searchTerm) || correo.includes(searchTerm) || producto.includes(searchTerm)) {
+                    rows[i].style.display = '';
                 } else {
-                    filas[i].style.display = 'none';
+                    rows[i].style.display = 'none';
                 }
             }
         }
 
-        // Función para regresar al menú
+        function guardarClientes() {
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+            alert('Clientes guardados correctamente.');
+        }
+
         function volverAlMenu() {
-            window.location.href = 'menu.html'; // Cambia esto a la URL de tu menú
+            window.location.href = 'menu.html'; // Cambia esta URL según sea necesario
         }
     </script>
+
 </body>
 </html>
