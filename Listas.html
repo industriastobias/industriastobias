@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    <style>
+        /* Estilos aquí (igual a lo que ya incluiste). */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Clientes</h1>
+
+        <div class="form-section">
+            <form id="clienteForm" onsubmit="return agregarCliente()">
+                <!-- Campos de formulario para añadir clientes -->
+                <div class="row">
+                    <div>
+                        <label for="nombre">Nombre del Cliente:</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div>
+                        <label for="correo">Correo Electrónico:</label>
+                        <input type="email" id="correo" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        <label for="producto">Producto Comprado:</label>
+                        <input type="text" id="producto" required>
+                    </div>
+                    <div>
+                        <label for="puntos">Puntos Acumulados:</label>
+                        <input type="number" id="puntos" required>
+                    </div>
+                    <div>
+                        <label for="precio">Precio del Producto:</label>
+                        <input type="number" id="precio" step="0.01" required>
+                    </div>
+                </div>
+            </form>
+
+            <div class="button-container">
+                <button class="add-btn" onclick="agregarCliente()">Agregar Cliente</button>
+                <button class="save-btn" onclick="guardarClientes()">Guardar Clientes</button>
+                <button class="menu-btn" onclick="volverAlMenu()">Regresar al Menú</button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="buscar" placeholder="Buscar cliente por nombre o correo" class="search-input" onkeyup="filtrarClientes()">
+        </div>
+
+        <div class="table-container">
+            <table id="clientesTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Producto</th>
+                        <th>Puntos</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos se agregarán aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let editando = null;
+        let clientes = [];
+
+        window.onload = function() {
+            const clientesGuardados = localStorage.getItem('clientes');
+            if (clientesGuardados) {
+                clientes = JSON.parse(clientesGuardados);
+                renderClientes();
+            }
+        };
+
+        const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
+
+        function agregarCliente() {
+            const nombre = document.getElementById('nombre').value;
+            const correo = document.getElementById('correo').value;
+            const producto = document.getElementById('producto').value;
+            const puntos = document.getElementById('puntos').value;
+            const precio = document.getElementById('precio').value;
+
+            if (editando !== null) {
+                clientes[editando] = { nombre, correo, producto, puntos, precio };
+                editando = null;
+            } else {
+                clientes.push({ nombre, correo, producto, puntos, precio });
+            }
+
+            renderClientes();
+            document.getElementById('clienteForm').reset();
+            return false;
+        }
+
+        function renderClientes() {
+            clientesTable.innerHTML = '';
+
+            clientes.forEach((cliente, index) => {
+                const nuevaFila = clientesTable.insertRow();
+
+                nuevaFila.insertCell(0).textContent = cliente.nombre || "No especificado";
+                nuevaFila.insertCell(1).textContent = cliente.correo || "No especificado";
+                nuevaFila.insertCell(2).textContent = cliente.producto || "No especificado";
+                nuevaFila.insertCell(3).textContent = cliente.puntos || "0";
+                nuevaFila.insertCell(4).textContent = cliente.precio || "0";
+
+                const accionesCelda = nuevaFila.insertCell(5);
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Editar';
+                editButton.className = 'edit-btn';
+                editButton.onclick = () => editarCliente(index);
+                accionesCelda.appendChild(editButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.className = 'delete-btn';
+                deleteButton.onclick = () => eliminarCliente(index);
+                accionesCelda.appendChild(deleteButton);
+            });
+
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+        }
+
+        function editarCliente(index) {
+            editando = index;
+            const cliente = clientes[index];
+            document.getElementById('nombre').value = cliente.nombre;
+            document.getElementById('correo').value = cliente.correo;
+            document.getElementById('producto').value = cliente.producto;
+            document.getElementById('puntos').value = cliente.puntos;
+            document.getElementById('precio').value = cliente.precio;
+        }
+
+        function eliminarCliente(index) {
+            clientes.splice(index, 1);
+            renderClientes();
+        }
+
+        function guardarClientes() {
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+            alert('Clientes guardados exitosamente.');
+        }
+
+        function filtrarClientes() {
+            const query = document.getElementById('buscar').value.toLowerCase();
+            const filas = clientesTable.getElementsByTagName('tr');
+
+            for (let i = 0; i < filas.length; i++) {
+                const nombre = filas[i].cells[0].textContent.toLowerCase();
+                const correo = filas[i].cells[1].textContent.toLowerCase();
+                if (nombre.includes(query) || correo.includes(query)) {
+                    filas[i].style.display = '';
+                } else {
+                    filas[i].style.display = 'none';
+                }
+            }
+        }
+
+        function volverAlMenu() {
+            window.location.href = 'menu.html';
+        }
+    </script>
+</body>
+</html>
