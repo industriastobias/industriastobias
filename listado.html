@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Clientes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 1em;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 2em;
+            width: 95%;
+            max-width: 1200px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            font-size: 2em;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 1.5em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+        th, td {
+            padding: 1em;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .actions {
+            display: flex;
+            gap: 0.5em;
+        }
+        .btn {
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 0.9em;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">Listado de Clientes</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Producto</th>
+                <th>Puntos</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Juan Pérez</td>
+                <td>juan@email.com</td>
+                <td>Anillo de oro</td>
+                <td>200</td>
+                <td>$500</td>
+                <td class="actions">
+                    <a href="#" class="btn">Editar</a>
+                    <a href="#" class="btn">Eliminar</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Ana Gómez</td>
+                <td>ana@email.com</td>
+                <td>Collar de plata</td>
+                <td>150</td>
+                <td>$300</td>
+                <td class="actions">
+                    <a href="#" class="btn">Editar</a>
+                    <a href="#" class="btn">Eliminar</a>
+                </td>
+            </tr>
+            <!-- Aquí puedes agregar más filas de clientes según sea necesario -->
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
