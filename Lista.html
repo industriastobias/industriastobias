@@ -6,82 +6,97 @@
     <title>Lista de Clientes</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 2em;
-            background-color: #f3f4f6;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #000;
         }
         .container {
-            background: white;
-            padding: 2em;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            margin: auto;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 1000px;
+            height: 95%;
+            overflow-y: auto;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1em;
         }
         th, td {
-            padding: 0.8em;
-            border: 1px solid #ddd;
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f3f4f6;
+            background-color: #f1f1f1;
+            color: #000;
         }
-        .back-button {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 0.8em 1.5em;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .back-button:hover {
-            background-color: #45a049;
+        tr:hover {
+            background-color: #f8f9fa;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Lista de Clientes</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Correo Electrónico</th>
-                    <th>Teléfono</th>
-                </tr>
-            </thead>
-            <tbody id="client-list">
-                <!-- Los datos se cargarán aquí -->
-            </tbody>
-        </table>
-        <a href="menu.html" class="back-button">Volver al Menú</a>
+        <h1>Lista de Clientes</h1>
+
+        <div class="table-container">
+            <table id="clientesTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Producto</th>
+                        <th>Puntos</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos de los clientes se cargarán aquí -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        function loadClients() {
-            const clients = JSON.parse(localStorage.getItem('clients')) || [];
-            const clientList = document.getElementById('client-list');
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientesGuardados = localStorage.getItem('clientes');
+            const clientes = clientesGuardados ? JSON.parse(clientesGuardados) : [];
 
-            clientList.innerHTML = '';
-
-            clients.forEach(client => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${client.name}</td>
-                    <td>${client.email}</td>
-                    <td>${client.phone}</td>
-                `;
-                clientList.appendChild(row);
+            const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
+            clientes.forEach(cliente => {
+                const nuevaFila = clientesTable.insertRow();
+                nuevaFila.insertCell(0).textContent = cliente.nombre || "No especificado";
+                nuevaFila.insertCell(1).textContent = cliente.correo || "No especificado";
+                nuevaFila.insertCell(2).textContent = cliente.producto || "No especificado";
+                nuevaFila.insertCell(3).textContent = cliente.puntos || "0";
+                nuevaFila.insertCell(4).textContent = cliente.precio || "0";
             });
-        }
-
-        window.onload = loadClients;
+        });
     </script>
+
 </body>
 </html>
