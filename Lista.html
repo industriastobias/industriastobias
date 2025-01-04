@@ -3,39 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Elementos</title>
+    <title>Lista de Clientes</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
         body {
+            font-family: Arial, sans-serif;
+            padding: 2em;
             background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1em;
         }
         .container {
-            background-color: #ffffff;
+            background: white;
             padding: 2em;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 1200px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            margin-bottom: 1.5em;
-        }
-        .table-container {
-            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
         }
         table {
             width: 100%;
@@ -43,30 +24,21 @@
             margin-bottom: 1em;
         }
         th, td {
-            text-align: left;
             padding: 0.8em;
             border: 1px solid #ddd;
+            text-align: left;
         }
         th {
             background-color: #f3f4f6;
-            font-weight: bold;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
         }
         .back-button {
-            display: inline-block;
             background-color: #4caf50;
             color: white;
+            border: none;
             padding: 0.8em 1.5em;
-            border-radius: 10px;
+            border-radius: 5px;
+            cursor: pointer;
             text-decoration: none;
-            font-size: 1em;
-            text-align: center;
-            transition: background-color 0.3s;
         }
         .back-button:hover {
             background-color: #45a049;
@@ -74,43 +46,42 @@
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">Lista de Elementos</div>
-    <div class="table-container">
+    <div class="container">
+        <h2>Lista de Clientes</h2>
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Acciones</th>
+                    <th>Correo Electrónico</th>
+                    <th>Teléfono</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Ejemplo 1</td>
-                    <td>Descripción del ejemplo 1</td>
-                    <td>
-                        <button>Editar</button>
-                        <button>Eliminar</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Ejemplo 2</td>
-                    <td>Descripción del ejemplo 2</td>
-                    <td>
-                        <button>Editar</button>
-                        <button>Eliminar</button>
-                    </td>
-                </tr>
+            <tbody id="client-list">
+                <!-- Los datos se cargarán aquí -->
             </tbody>
         </table>
+        <a href="menu.html" class="back-button">Volver al Menú</a>
     </div>
-    <a href="menu.html" class="back-button">Volver al Menú</a>
-</div>
 
+    <script>
+        function loadClients() {
+            const clients = JSON.parse(localStorage.getItem('clients')) || [];
+            const clientList = document.getElementById('client-list');
+
+            clientList.innerHTML = '';
+
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${client.name}</td>
+                    <td>${client.email}</td>
+                    <td>${client.phone}</td>
+                `;
+                clientList.appendChild(row);
+            });
+        }
+
+        window.onload = loadClients;
+    </script>
 </body>
 </html>
