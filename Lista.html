@@ -3,100 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Clientes</title>
+    <title>Menú Principal</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f4f8;
-            color: #333;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #000;
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 1em;
+            color: #333;
         }
         .container {
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 100%;
-            max-width: 1000px;
-            height: 95%;
-            overflow-y: auto;
+            background-color: #f3f4f6;
+            border-radius: 20px;
+            padding: 3em;
+            width: 95%;
+            max-width: 1400px;
+            height: 90vh;
+            text-align: center;
+            position: relative;
+            box-shadow: none;
         }
-        .table-container {
-            overflow-x: auto;
-            border-radius: 8px;
-            margin-top: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .header {
+            font-size: 3em;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2em;
+            margin-bottom: 2em;
         }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        .menu a {
+            background-color: #e0e0e0;
+            color: #333;
+            padding: 1.2em;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: background-color 0.3s, transform 0.2s;
         }
-        th {
-            background-color: #f1f1f1;
-            color: #000;
+        .menu a:hover {
+            background-color: #d4d4d4;
         }
-        tr:hover {
-            background-color: #f8f9fa;
+        .menu a.active {
+            background-color: #b3b3b3;
+            color: #fff;
+        }
+        .logout {
+            position: absolute;
+            top: 1em;
+            right: 1em;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #b3b3b3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .logout img {
+            width: 20px;
+            height: 20px;
+        }
+        .logout:hover {
+            background-color: #a6a6a6;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Lista de Clientes</h1>
-
-        <div class="table-container">
-            <table id="clientesTable">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Producto</th>
-                        <th>Puntos</th>
-                        <th>Precio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Los datos de los clientes se cargarán aquí -->
-                </tbody>
-            </table>
-        </div>
+<div class="container">
+    <div class="header">Industrias Tobias</div>
+    <div class="menu">
+        <a href="compra.html" id="compra-link">Compra</a>
+        <a href="venta.html" id="venta-link">Venta</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="clientes.html">Clientes</a>
+        <a href="traslados.html">Traslados</a>
+        <a href="facturas.html">Facturas</a>
+        <a href="gastos.html">Gastos</a>
+        <a href="lista_usuarios.html" id="usuarios-link">Usuarios</a>
+        <a href="listado.html" id="lista">Lista</a>
+        <a href="descuentos.html" id="descuentos">Descuentos</a>
     </div>
+    <div class="logout" onclick="sessionStorage.removeItem('loggedIn'); window.location.href='index.html';">
+        <img src="cerrar.png" alt="Cerrar Sesión">
+    </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const clientesGuardados = localStorage.getItem('clientes');
-            const clientes = clientesGuardados ? JSON.parse(clientesGuardados) : [];
+<script>
+    (function() {
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.go(1);
+        };
+    })();
 
-            const clientesTable = document.getElementById('clientesTable').getElementsByTagName('tbody')[0];
-            clientes.forEach(cliente => {
-                const nuevaFila = clientesTable.insertRow();
-                nuevaFila.insertCell(0).textContent = cliente.nombre || "No especificado";
-                nuevaFila.insertCell(1).textContent = cliente.correo || "No especificado";
-                nuevaFila.insertCell(2).textContent = cliente.producto || "No especificado";
-                nuevaFila.insertCell(3).textContent = cliente.puntos || "0";
-                nuevaFila.insertCell(4).textContent = cliente.precio || "0";
-            });
+    function checkAuthentication() {
+        if (sessionStorage.getItem('loggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    }
+
+    window.onload = function() {
+        checkAuthentication();
+
+        const userID = sessionStorage.getItem('userID');
+        const userLink = document.getElementById('usuarios-link');
+        const compraLink = document.getElementById('compra-link');
+        const ventaLink = document.getElementById('venta-link');
+
+        if (userID !== '2005') {
+            userLink.style.display = 'none';
+        }
+
+        if (userID.startsWith('100')) {
+            compraLink.style.display = 'none';
+            ventaLink.style.display = 'none';
+        }
+
+        const currentPage = window.location.pathname.split('/').pop();
+        document.querySelectorAll('.menu a').forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
         });
-    </script>
+    };
+</script>
 
 </body>
 </html>
