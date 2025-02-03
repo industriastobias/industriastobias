@@ -50,50 +50,6 @@
             width: 100px;
             margin: 20px auto;
         }
-        /* Estilos para el menú plegable */
-        #menu-toggle {
-            display: none;
-        }
-        #menu-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            width: 35px;  /* Menú más pequeño */
-            height: 35px; /* Menú más pequeño */
-        }
-        #menu {
-            position: fixed;
-            top: 0;
-            right: 0;
-            background-color: #333;
-            color: white;
-            width: 150px; /* Menú más estrecho */
-            height: 100%;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            padding-top: 60px;
-        }
-        #menu a {
-            display: block;
-            color: white;
-            padding: 8px 16px; /* Menú más pequeño */
-            text-decoration: none;
-            font-size: 14px; /* Fuente más pequeña */
-        }
-        #menu a:hover {
-            background-color: #575757;
-        }
-        #menu.open {
-            transform: translateX(0);
-        }
     </style>
 </head>
 <body>
@@ -116,7 +72,6 @@
                     <th>Descripción</th>
                     <th>Categoría</th>
                     <th>Cantidad Vendida</th>
-                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="soldList">
@@ -128,71 +83,36 @@
     <button class="ok-btn" onclick="downloadPDF()">Descargar PDF</button>
 </div>
 
-<!-- Menú plegable -->
-<button id="menu-btn" onclick="toggleMenu(event)">=</button>
-
-<div id="menu">
-    <a href="menu.html">Menú Principal</a>
-    <a href="compra.html">Compra</a>
-    <a href="inventario.html">Inventario</a>
-    <a href="clientes.html">Clientes</a>
-    <a href="traslados.html">Traslados</a>
-    <a href="facturas.html">Facturas</a>
-    <a href="gastos.html">Gastos</a>
-    <a href="usuarios.html">Usuarios</a>
-    <a href="lista.html">Lista</a>
-</div>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const soldList = document.getElementById('soldList');
+    // Datos de ejemplo de productos vendidos
+    const soldItems = [
+        { name: 'Anillo de Oro', code: 'A001', barcode: '1234567890', price: 100, discount: 10, description: 'Anillo de oro con diamantes', category: 'Joyería', quantitySold: 5 },
+        { name: 'Collar de Plata', code: 'C002', barcode: '9876543210', price: 50, discount: 5, description: 'Collar de plata con piedras preciosas', category: 'Joyería', quantitySold: 3 }
+    ];
 
-        // Cargar productos vendidos desde localStorage
-        function loadSoldItems() {
-            const soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
-
-            // Renderizar la tabla de productos vendidos
-            soldList.innerHTML = soldItems.map((item, index) => {
-                const priceWithDiscount = item.price - (item.price * (item.discount / 100));
-                return `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.code}</td>
-                        <td>${item.barcode}</td>
-                        <td>${item.price}</td>
-                        <td>${item.discount ? item.discount : 0}%</td>
-                        <td>${priceWithDiscount.toFixed(2)}</td>
-                        <td>${item.description}</td>
-                        <td>${item.category}</td>
-                        <td>${item.quantitySold}</td>
-                        <td><span class="delete-btn" onclick="deleteItem(${index})">Eliminar</span></td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Eliminar un producto
-        window.deleteItem = function(index) {
-            const soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
-            soldItems.splice(index, 1); // Eliminar el producto seleccionado
-            localStorage.setItem('soldItems', JSON.stringify(soldItems));
-            loadSoldItems(); // Recargar la tabla
-        }
-
-        // Cargar los productos vendidos al iniciar
-        loadSoldItems();
+    // Renderizar los productos vendidos en la tabla
+    const soldList = document.getElementById('soldList');
+    soldItems.forEach(item => {
+        const priceWithDiscount = item.price - (item.price * (item.discount / 100));
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.code}</td>
+            <td>${item.barcode}</td>
+            <td>${item.price}</td>
+            <td>${item.discount ? item.discount : 0}%</td>
+            <td>${priceWithDiscount.toFixed(2)}</td>
+            <td>${item.description}</td>
+            <td>${item.category}</td>
+            <td>${item.quantitySold}</td>
+        `;
+        soldList.appendChild(row);
     });
 
     // Función para descargar el PDF
     function downloadPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
-
-        if (soldItems.length === 0) {
-            alert("No hay productos vendidos para generar el PDF.");
-            return;
-        }
 
         const columns = [
             'Nombre', 'Código', 'Código de Barras', 'Precio', 'Descuento (%)', 
@@ -221,21 +141,6 @@
         });
 
         doc.save('productos_vendidos.pdf');
-    }
-
-    // Función para mostrar/ocultar el menú
-    function toggleMenu(event) {
-        const menu = document.getElementById('menu');
-        menu.classList.toggle('open');
-        event.stopPropagation(); // Evita que el clic en el botón cierre el menú
-
-        // Cerrar el menú si se hace clic en cualquier parte fuera del menú
-        document.addEventListener('click', function closeMenu(e) {
-            if (!menu.contains(e.target) && e.target !== document.getElementById('menu-btn')) {
-                menu.classList.remove('open');
-                document.removeEventListener('click', closeMenu); // Eliminar el evento de cierre
-            }
-        });
     }
 </script>
 
