@@ -199,17 +199,11 @@
         doc.setFontSize(18);
         doc.text('Productos Vendidos', 20, 20);
 
-        // Encabezados
+        // Configuración de la tabla en el PDF
         const headers = ['Nombre', 'Código', 'Código de Barras', 'Precio', 'Descuento (%)', 'Precio Con Descuento', 'Descripción', 'Categoría', 'Cantidad Vendida'];
-        let yPosition = 30;
-        doc.setFontSize(12);
-        doc.text(headers.join(' | '), 20, yPosition);
-        yPosition += 10;
-
-        // Filas de productos vendidos
-        soldItems.forEach(item => {
+        const rows = soldItems.map(item => {
             const priceWithDiscount = item.price - (item.price * (item.discount / 100));
-            const row = [
+            return [
                 item.name,
                 item.code,
                 item.barcode,
@@ -220,8 +214,16 @@
                 item.category,
                 item.quantitySold
             ];
-            doc.text(row.join(' | '), 20, yPosition);
-            yPosition += 10;
+        });
+
+        // Crear la tabla en el PDF
+        doc.autoTable({
+            head: [headers],
+            body: rows,
+            startY: 30, // Iniciar después del título
+            theme: 'grid',
+            headStyles: { fillColor: [255, 0, 0] }, // Encabezado en rojo
+            margin: { top: 20, left: 20, right: 20 }
         });
 
         // Descargar PDF
