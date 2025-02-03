@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos Vendidos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Agregado para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Librería jsPDF -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,7 +104,7 @@
 
 <div class="container">
     <div class="inventory-table">
-        <table>
+        <table id="soldTable">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -124,8 +124,8 @@
             </tbody>
         </table>
     </div>
-    <!-- Botón para descargar el PDF -->
-    <button class="ok-btn" onclick="generatePDF()">Descargar PDF</button>
+    <!-- Botón para descargar PDF -->
+    <button class="ok-btn" onclick="downloadPDF()">Descargar PDF</button>
 </div>
 
 <!-- Menú plegable -->
@@ -183,8 +183,10 @@
         loadSoldItems();
     });
 
-    // Función para generar el PDF
-    function generatePDF() {
+    // Función para descargar el PDF
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         const soldItems = JSON.parse(localStorage.getItem('soldItems')) || [];
 
         if (soldItems.length === 0) {
@@ -192,15 +194,11 @@
             return;
         }
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const columns = [
+            'Nombre', 'Código', 'Código de Barras', 'Precio', 'Descuento (%)', 
+            'Precio Con Descuento', 'Descripción', 'Categoría', 'Cantidad Vendida'
+        ];
 
-        // Título
-        doc.setFontSize(18);
-        doc.text('Productos Vendidos', 20, 20);
-
-        // Configuración de la tabla en el PDF
-        const headers = ['Nombre', 'Código', 'Código de Barras', 'Precio', 'Descuento (%)', 'Precio Con Descuento', 'Descripción', 'Categoría', 'Cantidad Vendida'];
         const rows = soldItems.map(item => {
             const priceWithDiscount = item.price - (item.price * (item.discount / 100));
             return [
@@ -216,17 +214,12 @@
             ];
         });
 
-        // Crear la tabla en el PDF
         doc.autoTable({
-            head: [headers],
+            head: [columns],
             body: rows,
-            startY: 30, // Iniciar después del título
-            theme: 'grid',
-            headStyles: { fillColor: [255, 0, 0] }, // Encabezado en rojo
-            margin: { top: 20, left: 20, right: 20 }
+            startY: 30, // Para evitar que la tabla se sobreponga al título
         });
 
-        // Descargar PDF
         doc.save('productos_vendidos.pdf');
     }
 
