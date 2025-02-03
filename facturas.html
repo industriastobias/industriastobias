@@ -4,126 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Factura - TOBIAS JEWELRY</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
         }
         .container {
+            width: 80%;
             max-width: 800px;
-            background: #fff;
+            margin: 20px auto;
+            background-color: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
         }
-        header {
-            text-align: center;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        h1 {
-            color: black;
-            margin: 0;
+        .logo {
+            width: 100px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="date"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+        .info {
+            margin-bottom: 10px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
+            margin-top: 20px;
         }
         th, td {
+            border: 1px solid #ddd;
             padding: 10px;
-            text-align: center;
+            text-align: left;
         }
         th {
-            background-color: #f9f9f9;
+            background-color: #f2f2f2;
         }
-        .btn {
-            padding: 10px 15px;
-            background-color: black;
+        .footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            transition: background 0.3s;
         }
-        .btn:hover {
-            background-color: darkgray;
-        }
-        footer {
-            margin-top: 20px;
-            text-align: center;
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>TOBIAS JEWELRY</h1>
-        <p>A Family Company</p>
-    </header>
-
-    <form id="invoiceForm">
-        <div class="form-group">
-            <label for="invoiceNumber">Número de Factura:</label>
-            <input type="text" id="invoiceNumber" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="date">Fecha:</label>
-            <input type="date" id="date" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="customerName">Nombre del Cliente:</label>
-            <input type="text" id="customerName" required>
+    <div class="container" id="invoice">
+        <div class="header">
+            <div>
+                <h2>TOBIAS JEWELRY</h2>
+                <p>Dirección: El Salvador, San Salvador</p>
+                <p>Correo: Industriastobias@gmail.com</p>
+            </div>
+            <img src="factura.jpg" alt="Logo TOBIAS JEWELRY" class="logo">
         </div>
 
-        <div class="form-group">
-            <label for="customerEmail">Correo Electrónico:</label>
-            <input type="text" id="customerEmailLocal" placeholder="usuario" required>
-            <select id="emailDomain" onchange="updateEmail()">
-                <option value="@gmail.com">@gmail.com</option>
-                <option value="@hotmail.com">@hotmail.com</option>
-                <option value="@yahoo.com">@yahoo.com</option>
-                <option value="@outlook.com">@outlook.com</option>
-                <option value="otros">Otros</option>
-            </select>
-            <input type="text" id="otherDomain" placeholder="Especifica dominio" style="display:none;" oninput="updateEmail()">
-        </div>
-
-        <div class="form-group">
-            <label for="customerAddress">Dirección del Cliente:</label>
-            <input type="text" id="customerAddress" required>
+        <div class="info">
+            <p><strong>Factura N°:</strong> <span contenteditable="true" id="facturaNum">0001</span></p>
+            <p><strong>Fecha:</strong> <span contenteditable="true" id="fecha">03/02/2025</span></p>
+            <p><strong>Cliente:</strong> <span contenteditable="true" id="cliente">Juan Pérez</span></p>
+            <p><strong>Dirección:</strong> <span contenteditable="true" id="direccion">Colonia Centro, Ciudad</span></p>
         </div>
 
         <table>
@@ -131,143 +89,78 @@
                 <tr>
                     <th>Descripción</th>
                     <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Total</th>
+                    <th>Precio Unitario ($)</th>
+                    <th>Total ($)</th>
                 </tr>
             </thead>
-            <tbody id="invoiceItems">
+            <tbody id="productos">
                 <tr>
-                    <td><input type="text" placeholder="Descripción" required></td>
-                    <td><input type="number" placeholder="Cantidad" required oninput="calculateTotal()"></td>
-                    <td><input type="number" placeholder="Precio Unitario" required oninput="calculateTotal()"></td>
-                    <td><input type="number" placeholder="Total" disabled></td>
+                    <td contenteditable="true">Anillo de Oro 18K</td>
+                    <td contenteditable="true" class="cantidad">1</td>
+                    <td contenteditable="true" class="precio">500.00</td>
+                    <td class="total">500.00</td>
                 </tr>
             </tbody>
         </table>
 
-        <button type="button" id="addRow" class="btn">Agregar Fila</button>
+        <button onclick="agregarFila()">Agregar Producto</button>
 
-        <div class="form-group">
-            <label for="tax">Impuestos (%):</label>
-            <input type="number" id="tax" value="0" oninput="calculateTotal()">
+        <div class="footer">
+            <p><strong>Total a Pagar:</strong> $<span id="total">500.00</span></p>
         </div>
 
-        <div class="form-group">
-            <label for="totalAmount">Monto Total:</label>
-            <input type="number" id="totalAmount" readonly>
+        <div class="footer">
+            <button onclick="calcularTotal()">Actualizar Total</button>
+            <button onclick="descargarPDF()">Descargar PDF</button>
         </div>
+    </div>
 
-        <button type="button" class="btn" onclick="savePDF()">Guardar como PDF</button>
-    </form>
+    <script>
+        function calcularTotal() {
+            let filas = document.querySelectorAll("#productos tr");
+            let total = 0;
 
-    <footer>
-        <p>Gracias por su compra.</p>
-        <p>Síguenos en Instagram: @tobiasjewelry</p>
-    </footer>
-</div>
+            filas.forEach(fila => {
+                let cantidad = parseFloat(fila.querySelector(".cantidad").innerText) || 0;
+                let precio = parseFloat(fila.querySelector(".precio").innerText) || 0;
+                let totalFila = cantidad * precio;
+                fila.querySelector(".total").innerText = totalFila.toFixed(2);
+                total += totalFila;
+            });
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-    document.getElementById('addRow').addEventListener('click', function () {
-        const table = document.getElementById('invoiceItems');
-        const row = table.insertRow();
-        row.innerHTML = `
-            <td><input type="text" placeholder="Descripción" required></td>
-            <td><input type="number" placeholder="Cantidad" required oninput="calculateTotal()"></td>
-            <td><input type="number" placeholder="Precio Unitario" required oninput="calculateTotal()"></td>
-            <td><input type="number" placeholder="Total" disabled></td>
-        `;
-    });
-
-    document.getElementById('emailDomain').addEventListener('change', function () {
-        const otherDomainInput = document.getElementById('otherDomain');
-        if (this.value === 'otros') {
-            otherDomainInput.style.display = 'block';
-            otherDomainInput.value = '';
-            document.getElementById('customerEmail').value = ''; // Clear email field
-        } else {
-            otherDomainInput.style.display = 'none';
-            otherDomainInput.value = ''; // Clear input
-            updateEmail(); // Update email with selected domain
+            document.getElementById("total").innerText = total.toFixed(2);
         }
-    });
 
-    function updateEmail() {
-        const localPart = document.getElementById('customerEmailLocal').value;
-        const domainPart = document.getElementById('emailDomain').value === 'otros' ? document.getElementById('otherDomain').value : document.getElementById('emailDomain').value;
-        document.getElementById('customerEmail').value = localPart + domainPart;
-    }
+        function agregarFila() {
+            let tabla = document.getElementById("productos");
+            let nuevaFila = document.createElement("tr");
 
-    function calculateTotal() {
-        const rows = document.querySelectorAll('#invoiceItems tr');
-        let total = 0;
+            nuevaFila.innerHTML = `
+                <td contenteditable="true">Nuevo Producto</td>
+                <td contenteditable="true" class="cantidad">1</td>
+                <td contenteditable="true" class="precio">0.00</td>
+                <td class="total">0.00</td>
+            `;
 
-        rows.forEach(row => {
-            const quantity = parseFloat(row.cells[1].querySelector('input').value) || 0;
-            const unitPrice = parseFloat(row.cells[2].querySelector('input').value) || 0;
-            const rowTotal = quantity * unitPrice;
-            row.cells[3].querySelector('input').value = rowTotal.toFixed(2);
-            total += rowTotal;
-        });
+            tabla.appendChild(nuevaFila);
+        }
 
-        const taxRate = parseFloat(document.getElementById('tax').value) || 0;
-        const taxAmount = (total * taxRate) / 100;
-        total += taxAmount;
+        function descargarPDF() {
+            const invoice = document.getElementById("invoice");
 
-        document.getElementById('totalAmount').value = total.toFixed(2);
-    }
+            html2canvas(invoice).then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF("p", "mm", "a4");
 
-    async function savePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Título de la factura
-        doc.setFontSize(18);
-        doc.text('TOBIAS JEWELRY', 105, 20, { align: 'center' });
-        doc.setFontSize(12);
-        doc.text('A Family Company', 105, 30, { align: 'center' });
-
-        // Información de la factura
-        doc.setFontSize(12);
-        doc.text(`Factura N°: ${document.getElementById('invoiceNumber').value}`, 10, 40);
-        doc.text(`Fecha: ${document.getElementById('date').value}`, 10, 50);
-        doc.text(`Cliente: ${document.getElementById('customerName').value}`, 10, 60);
-        const email = document.getElementById('customerEmailLocal').value + (document.getElementById('emailDomain').value === 'otros' ? document.getElementById('otherDomain').value : document.getElementById('emailDomain').value);
-        doc.text(`Correo: ${email}`, 10, 70);
-        doc.text(`Dirección: ${document.getElementById('customerAddress').value}`, 10, 80);
-        doc.line(10, 85, 200, 85); // Línea horizontal
-
-        // Encabezado de la tabla
-        const startY = 90;
-        doc.text('Descripción', 10, startY);
-        doc.text('Cantidad', 80, startY);
-        doc.text('Precio Unitario', 130, startY);
-        doc.text('Total', 180, startY);
-        doc.line(10, startY + 2, 200, startY + 2); // Línea horizontal
-
-        const rows = document.querySelectorAll('#invoiceItems tr');
-        let currentY = startY + 10;
-
-        rows.forEach(row => {
-            doc.text(row.cells[0].querySelector('input').value, 10, currentY);
-            doc.text(row.cells[1].querySelector('input').value, 80, currentY);
-            doc.text(row.cells[2].querySelector('input').value, 130, currentY);
-            doc.text(row.cells[3].querySelector('input').value, 180, currentY);
-            currentY += 10;
-            doc.line(10, currentY - 2, 200, currentY - 2); // Línea horizontal entre filas
-        });
-
-        currentY += 10; // Espacio antes del total
-        doc.text(`Total: $${document.getElementById('totalAmount').value}`, 10, currentY);
-
-        currentY += 10; // Espacio antes del mensaje de agradecimiento
-        doc.text('Gracias por su compra.', 10, currentY);
-        currentY += 10; // Espacio antes del Instagram
-        doc.text('Síguenos en Instagram: @tobiasjewelry', 10, currentY);
-
-        doc.save('factura.pdf');
-    }
-</script>
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                doc.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+                
+                doc.save("factura_tobias_jewelry.pdf");
+            });
+        }
+    </script>
 
 </body>
 </html>
